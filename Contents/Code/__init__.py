@@ -74,7 +74,7 @@ def MusicMenu(sender):
 def Search(sender, query):
 	dir = MediaContainer(viewGroup='Details', title2="Search: " + query)
 	url = SEARCH_URL + '&searchTerm=' + query.replace(' ', '%20')
-	ParseStories(dir, url)
+	dir.Extend(ParseStories(url))
 	return dir
 
 def PlayMusic(sender, url):
