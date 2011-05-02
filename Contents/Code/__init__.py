@@ -1,4 +1,3 @@
-PLUGIN_PREFIX  = "/music/NPR"
 NPR_ROOT       = 'http://api.npr.org'
 API_KEY        = 'MDAyNTU3MTA2MDEyMjk2NTE1MzEwN2U0MQ001'
 LIST_URL       = NPR_ROOT + '/list?apiKey=' + API_KEY
@@ -20,7 +19,7 @@ musicDirs = [ ['Recent Artists', '3008'],
 ####################################################################################################
 
 def Start():
-	Plugin.AddPrefixHandler(PLUGIN_PREFIX, MainMenu, "National Public Radio", "icon-default.jpg", "art-default.png")
+	Plugin.AddPrefixHandler('/music/npr', MainMenu, "National Public Radio", "icon-default.jpg", "art-default.jpg")
 	Plugin.AddViewGroup("Details", viewMode="InfoList", mediaType="items")
 	MediaContainer.art = R('art-default.jpg')
 	DirectoryItem.thumb = R('icon-default.jpg')
@@ -35,21 +34,25 @@ def S(item, attr):
 
 ####################################################################################################
 
-def ParseStories(dir, url):
-#	dir.SetAttr('filelabel', '%T')
+def ParseStories(url):
+	dir = MediaContainer()
 	trackIndex = 1
 	for item in XML.ElementFromURL(url, cacheTime=CACHE_INTERVAL).xpath('//story'):
-		try: duration = int(item.find('audio').find('duration').text) * 1000
+		try: duration = int(item.xpath('./audio/duration')[0].text) * 1000
 		except: duration = None
-		
+
+		try: thumb = item.xpath('./thumbnail/large')[0].text
+		except: thumb = None
+
 		try:
-			mp3 = item.xpath('audio/format/mp3')[0].text
-			
-			dir.Append(Function(TrackItem(PlayMusic, title=S(item,'title'), artist=S(item, 'slug'), duration=duration, summary=S(item,'teaser'), subtitle=' '.join(S(item,'storyDate').split()[0:4])), url=mp3))
+			mp3 = item.xpath('./audio/format/mp3')[0].text
+			dir.Append(Function(TrackItem(PlayMusic, title=S(item,'title'), artist=S(item, 'slug'), duration=duration, summary=S(item,'teaser'), subtitle=' '.join(S(item,'storyDate').split()[0:4]), thumb=Function(GetThumb, url=thumb)), ext='mp3', url=mp3))
 			trackIndex += 1
 		except IndexError:
 			pass
-	
+
+	return dir
+
 ####################################################################################################
 
 def MainMenu():
@@ -76,7 +79,6 @@ def Search(sender, query):
 
 def PlayMusic(sender, url):
 	target = HTTP.Request(url, cacheTime=CACHE_INTERVAL).content.split('\n')[0]
-	Log(target)
 	return Redirect(target)
 	
 def SectionMenu(sender, id):
@@ -92,7 +94,17 @@ def SectionMenu(sender, id):
 
 def StoryMenu(sender, id):
 	dir = MediaContainer(viewGroup='Details', title2=sender.itemTitle)
-	ParseStories(dir, QUERY_URL + '&id=' + id)
+	dir.Extend(ParseStories(QUERY_URL + '&id=' + id))
 	if len(dir) == 0:
 		return MessageContainer('No Audio', 'No audio files were found in this section.')
 	return dir
+
+def GetThumb(url):
+  if url:
+    try:
+      data = HTTP.Request(url, cacheTime=CACHE_1MONTH).content
+      return DataObject(data, 'image/jpeg')
+    except:
+      pass
+
+  return Redirect(R('icon-default.jpg'))
