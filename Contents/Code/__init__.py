@@ -77,8 +77,11 @@ def Search(sender, query):
 	dir.Extend(ParseStories(url))
 	return dir
 
+#@indirect
 def PlayMusic(sender, url):
 	target = HTTP.Request(url, cacheTime=CACHE_INTERVAL).content.split('\n')[0]
+	target = target.split('<', 1)[0]
+	Log.Debug(target)
 	return Redirect(target)
 	
 def SectionMenu(sender, id):
