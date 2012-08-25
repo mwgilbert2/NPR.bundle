@@ -79,6 +79,7 @@ def Search(sender, query):
 
 def PlayMusic(sender, url):
 	target = HTTP.Request(url, cacheTime=CACHE_INTERVAL).content.split('\n')[0]
+	target = target.split('<', 1)[0]
 	return Redirect(target)
 	
 def SectionMenu(sender, id):
