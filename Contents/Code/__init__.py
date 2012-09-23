@@ -62,7 +62,7 @@ def MainMenu():
 			dir.Append(Function(DirectoryItem(MusicMenu, title=name)))
 		else:
 			dir.Append(Function(DirectoryItem(SectionMenu, title=name), id=value))
-	dir.Append(Function(InputDirectoryItem(Search, title="Search...", prompt="Search NPR", thumb=R("search.png"))))
+	dir.Append(Function(InputDirectoryItem(Search, title="Search...", prompt="Search NPR", thumb=R("icon-search.png"))))
 	return dir
 
 def MusicMenu(sender):
