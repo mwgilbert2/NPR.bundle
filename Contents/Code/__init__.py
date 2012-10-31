@@ -19,57 +19,30 @@ musicDirs = [ ['Recent Artists', '3008'],
 ####################################################################################################
 
 def Start():
-	Plugin.AddPrefixHandler('/music/npr', MainMenu, "National Public Radio", "icon-default.jpg", "art-default.jpg")
 	Plugin.AddViewGroup("Details", viewMode="InfoList", mediaType="items")
-	MediaContainer.art = R('art-default.jpg')
-	DirectoryItem.thumb = R('icon-default.jpg')
+	ObjectContainer.art = R('art-default.jpg')
+	DirectoryObject.thumb = R('icon-default.jpg')
 
 ####################################################################################################
-
-def S(item, attr): 
-	try:
-		return item.find(attr).text.replace('<em>','').replace('</em>','').replace('&mdash;','-')
-	except:
-		return ''
-
-####################################################################################################
-
-def ParseStories(url):
-	dir = MediaContainer()
-	trackIndex = 1
-	for item in XML.ElementFromURL(url, cacheTime=CACHE_INTERVAL).xpath('//story'):
-		try: duration = int(item.xpath('./audio/duration')[0].text) * 1000
-		except: duration = None
-
-		try: thumb = item.xpath('./thumbnail/large')[0].text
-		except: thumb = None
-
-		try:
-			mp3 = item.xpath('./audio/format/mp3')[0].text
-			dir.Append(Function(TrackItem(PlayMusic, title=S(item,'title'), artist=S(item, 'slug'), duration=duration, summary=S(item,'teaser'), subtitle=' '.join(S(item,'storyDate').split()[0:4]), thumb=Function(GetThumb, url=thumb)), ext='mp3', url=mp3))
-			trackIndex += 1
-		except IndexError:
-			pass
-
-	return dir
-
-####################################################################################################
-
+@handler('/music/npr', 'NPR', thumb='icon-default.jpg', art='art-default.jpg')
 def MainMenu():
-	dir = MediaContainer()
+	oc = ObjectContainer()
 	for name, value in dirs:
 		if value == 'music':
-			dir.Append(Function(DirectoryItem(MusicMenu, title=name)))
+            oc.add(DirectoryObject(key=Callback(MusicMenu), title=name))
 		else:
 			dir.Append(Function(DirectoryItem(SectionMenu, title=name), id=value))
-	dir.Append(Function(InputDirectoryItem(Search, title="Search...", prompt="Search NPR", thumb=R("icon-search.png"))))
-	return dir
+            oc.add(DirectoryObject(key=Callback(SectionMenu, id=value, name=name), title=name))
+    ###TODO - implement Search Service ###
+	#dir.Append(Function(InputDirectoryItem(Search, title="Search...", prompt="Search NPR", thumb=R("icon-search.png"))))
+	return oc
 
-def MusicMenu(sender):
-	dir = MediaContainer(title2="Music Artists")
+####################################################################################################
+def MusicMenu():
+	oc = ObjectContainer(title2="Music Artists")
 	for name, value in musicDirs:
-		dir.Append(Function(DirectoryItem(SectionMenu, title=name), id=value))
-	return dir
+        oc.add(DirectoryObject(key=Callback(SectionMenu, id=value, name=name), title=name))
+	return oc
 
 def Search(sender, query):
 	dir = MediaContainer(viewGroup='Details', title2="Search: " + query)
@@ -82,7 +55,7 @@ def PlayMusic(sender, url):
 	target = target.split('<', 1)[0]
 	return Redirect(target)
 	
-def SectionMenu(sender, id):
+def SectionMenu(sender, id, name):
 	dir = MediaContainer(viewGroup='Details', title2=sender.itemTitle)
 	maxNumToReturn = 200
 	for item in XML.ElementFromURL(LIST_URL + '&id=' + id, cacheTime=CACHE_INTERVAL).xpath('//item'):
@@ -109,3 +82,32 @@ def GetThumb(url):
       pass
 
   return Redirect(R('icon-default.jpg'))
+
+def ParseStories(url):
+    dir = MediaContainer()
+	trackIndex = 1
+	for item in XML.ElementFromURL(url, cacheTime=CACHE_INTERVAL).xpath('//story'):
+		try: duration = int(item.xpath('./audio/duration')[0].text) * 1000
+		except: duration = None
+
+		try: thumb = item.xpath('./thumbnail/large')[0].text
+		except: thumb = None
+
+		try:
+			mp3 = item.xpath('./audio/format/mp3')[0].text
+			dir.Append(Function(TrackItem(PlayMusic, title=S(item,'title'), artist=S(item, 'slug'), duration=duration, summary=S(item,'teaser'), subtitle=' '.join(S(item,'storyDate').split()[0:4]), thumb=Function(GetThumb, url=thumb)), ext='mp3', url=mp3))
+			trackIndex += 1
+		except IndexError:
+			pass
+
+	return dir
+
+####################################################################################################
+# I think this shouldn't be necessary at all #
+def S(item, attr): 
+    try:
+		return item.find(attr).text.replace('<em>','').replace('</em>','').replace('&mdash;','-')
+	except:
+		return ''
+
+####################################################################################################
