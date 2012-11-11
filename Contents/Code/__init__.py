@@ -1,3 +1,5 @@
+
+
 NPR_ROOT       = 'http://api.npr.org'
 API_KEY        = 'MDAyNTU3MTA2MDEyMjk2NTE1MzEwN2U0MQ001'
 LIST_URL       = NPR_ROOT + '/list?apiKey=' + API_KEY
@@ -38,41 +40,37 @@ def MainMenu():
 	return oc
 
 ####################################################################################################
+@route('/music/npr/music')
 def MusicMenu():
 	oc = ObjectContainer(title2="Music Artists")
 	for name, value in musicDirs:
         oc.add(DirectoryObject(key=Callback(SectionMenu, id=value, name=name), title=name))
 	return oc
-
-def Search(sender, query):
-	dir = MediaContainer(viewGroup='Details', title2="Search: " + query)
-	url = SEARCH_URL + '&searchTerm=' + query.replace(' ', '%20')
-	dir.Extend(ParseStories(url))
-	return dir
-
-def PlayMusic(sender, url):
-	target = HTTP.Request(url, cacheTime=CACHE_INTERVAL).content.split('\n')[0]
-	target = target.split('<', 1)[0]
-	return Redirect(target)
 	
-def SectionMenu(sender, id, name):
-	dir = MediaContainer(viewGroup='Details', title2=sender.itemTitle)
+####################################################################################################
+@route('/music/npr/section')
+def SectionMenu(id, name):
+	oc = ObjectContainer(title2=name)
 	maxNumToReturn = 200
 	for item in XML.ElementFromURL(LIST_URL + '&id=' + id, cacheTime=CACHE_INTERVAL).xpath('//item'):
-		dir.Append(Function(DirectoryItem(StoryMenu, title=S(item,'title'), thumb=R('icon-default.jpg'), summary=S(item,'additionalInfo')), id=item.get('id')))
+        oc.add(DirectoryObject(key=Callback(StoryMenu, id=item.get('id'), name=item.get('title')),
+            title=item.get('title'), summary=item.get('additionalInfo')))
 		if id == '3008':
 			maxNumToReturn = maxNumToReturn - 1
 			if maxNumToReturn <= 0: 
 				break
-	return dir
+	return oc
 
-def StoryMenu(sender, id):
-	dir = MediaContainer(viewGroup='Details', title2=sender.itemTitle)
+####################################################################################################
+
+def StoryMenu(id, name):
+	oc = ObjectContainer(title2=name)
 	dir.Extend(ParseStories(QUERY_URL + '&id=' + id))
 	if len(dir) == 0:
 		return MessageContainer('No Audio', 'No audio files were found in this section.')
 	return dir
 
+####################################################################################################
 def GetThumb(url):
   if url:
     try:
@@ -83,25 +81,6 @@ def GetThumb(url):
 
   return Redirect(R('icon-default.jpg'))
 
-def ParseStories(url):
-    dir = MediaContainer()
-	trackIndex = 1
-	for item in XML.ElementFromURL(url, cacheTime=CACHE_INTERVAL).xpath('//story'):
-		try: duration = int(item.xpath('./audio/duration')[0].text) * 1000
-		except: duration = None
-
-		try: thumb = item.xpath('./thumbnail/large')[0].text
-		except: thumb = None
-
-		try:
-			mp3 = item.xpath('./audio/format/mp3')[0].text
-			dir.Append(Function(TrackItem(PlayMusic, title=S(item,'title'), artist=S(item, 'slug'), duration=duration, summary=S(item,'teaser'), subtitle=' '.join(S(item,'storyDate').split()[0:4]), thumb=Function(GetThumb, url=thumb)), ext='mp3', url=mp3))
-			trackIndex += 1
-		except IndexError:
-			pass
-
-	return dir
-
 ####################################################################################################
 # I think this shouldn't be necessary at all #
 def S(item, attr): 
@@ -111,3 +90,16 @@ def S(item, attr):
 		return ''
 
 ####################################################################################################
+###TODO - implement Search Service ###
+#def Search(sender, query):
+#    dir = MediaContainer(viewGroup='Details', title2="Search: " + query)
+#	url = SEARCH_URL + '&searchTerm=' + query.replace(' ', '%20')
+#	dir.Extend(ParseStories(url))
+#	return dir
+
+####################################################################################################
+# This will likely be handled by the new URL Service #
+def PlayMusic(url):
+	target = HTTP.Request(url, cacheTime=CACHE_INTERVAL).content.split('\n')[0]
+	target = target.split('<', 1)[0]
+	return Redirect(target)
