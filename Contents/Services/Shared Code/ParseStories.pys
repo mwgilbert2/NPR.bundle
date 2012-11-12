@@ -2,30 +2,30 @@ def ParseStories(url, name=None):
     oc = ObjectContainer()
     if name:
         oc.title2 = name
+    else:
+        pass
 
-    trackIndex = 1
-	for item in XML.ElementFromURL(url, cacheTime=CACHE_INTERVAL).xpath('//story'):
-		
+    for item in XML.ElementFromURL(url).xpath('//story'):
         try: duration = int(item.xpath('./audio/duration')[0].text) * 1000
-		except: duration = None
-        
-        thumb = item.xpath('./image/crop')[0].get('src')
-		
-        url = item.xpath('./link[@type="api"]')[0].text
-        
+        except: duration = None
+
         title = item.xpath('./title')[0].text
+
+	track_url = item.xpath('./link[@type="api"]')[0].text
 
         artist = item.xpath('./slug')[0].text
 
-        summary = item.xpatH('./teaser')[0].text
+        summary = item.xpath('./teaser')[0].text
+
+	try:
+	    thumb = item.xpath('./image/crop')[0].get('src')
+	except:
+	    thumb = R('icon-default.png')
 
         date = item.xpath('./storyDate')[0].text
         date = Datetime.ParseDate(date).date()
-    
-		try:
-            oc.add(TrackObject(url=url, title=title, artist=artist, summary=summary, duration=duration, index=trackIndex, thumb=thumb))
-			trackIndex += 1
-		except IndexError:
-			pass
+        
+        
+        oc.add(TrackObject(url=track_url, title=title, artist=artist, summary=summary, duration=duration, thumb=thumb))
 
-	return oc
+    return oc
