@@ -16,7 +16,7 @@
 		<dict>
 			<key>URLPatterns</key>
 			<array>
-				<string></string>
+				<string>http://api\.npr\.org/query\?id\=[0-9]+.apiKey=.+</string>
 			</array>
 		</dict>
 		
