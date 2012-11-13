@@ -1,0 +1,43 @@
+def ParseStories(url, name=None):
+    oc = ObjectContainer()
+    if name:
+        oc.title2 = name
+    else:
+        pass
+
+    for item in XML.ElementFromURL(url).xpath('//story'):
+        try: duration = int(item.xpath('./audio/duration')[0].text) * 1000
+        except: duration = None
+
+        title = item.xpath('./title')[0].text
+
+	track_url = item.xpath('./link[@type="api"]')[0].text
+
+        artist = item.xpath('./slug')[0].text
+
+        summary = item.xpath('./teaser')[0].text
+	
+	try:
+	    show = item.xpath('./show/program')[0].text
+	except:
+	    show = ''
+
+	try:
+	    thumb = item.xpath('./image/crop')[0].get('src')
+	except:
+	    thumb = R('icon-default.png')
+
+        date = item.xpath('./storyDate')[0].text
+        date = Datetime.ParseDate(date).date()
+        
+        
+        oc.add(TrackObject(url=track_url, title=title, artist=artist, album=show, summary=summary, duration=duration, thumb=thumb))
+    
+    Log(len(oc))
+    if len(oc) < 1:
+	Log('no content')
+	if name:
+	    Log("return error message")
+	    return ObjectContainer(header="Empty", message="No content found.")
+    
+    return oc
