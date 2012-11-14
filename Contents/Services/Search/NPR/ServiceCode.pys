@@ -5,6 +5,4 @@ API_KEY        = 'MDAyNTU3MTA2MDEyMjk2NTE1MzEwN2U0MQ001'
 SEARCH_URL     = NPR_ROOT + '/query?searchTerm=%s&requiredAssets=audio&startNum=0&sort=dateDesc&output=NPRML&numResults=20&apiKey=' + API_KEY
 
 def Search(query):
-    return ParseStories(url=(SEARCH_URL % query))
-    
-    
+	return ParseStories(url=(SEARCH_URL % query))

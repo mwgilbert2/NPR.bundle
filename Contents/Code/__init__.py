@@ -1,10 +1,10 @@
 ParseStories = SharedCodeService.ParseStories.ParseStories
 
-NPR_ROOT       = 'http://api.npr.org'
-API_KEY        = 'MDAyNTU3MTA2MDEyMjk2NTE1MzEwN2U0MQ001'
-LIST_URL       = NPR_ROOT + '/list?apiKey=' + API_KEY
-QUERY_URL      = NPR_ROOT + '/query?id=%s&numResults=20&requiredAssets=audio&apiKey=' + API_KEY
-SEARCH_URL     = NPR_ROOT + '/query?startNum=0&sort=dateDesc&output=NPRML&numResults=20&apiKey=' + API_KEY
+NPR_ROOT = 'http://api.npr.org'
+API_KEY = 'MDAyNTU3MTA2MDEyMjk2NTE1MzEwN2U0MQ001'
+LIST_URL = NPR_ROOT + '/list?apiKey=' + API_KEY
+QUERY_URL = NPR_ROOT + '/query?id=%s&numResults=20&requiredAssets=audio&apiKey=' + API_KEY
+SEARCH_URL = NPR_ROOT + '/query?startNum=0&sort=dateDesc&output=NPRML&numResults=20&apiKey=' + API_KEY
 
 dirs = [
 	['Topics', '3002'], 
@@ -14,7 +14,7 @@ dirs = [
 	['Music Artists' , 'music'],
 	['Columns' , '3003'],
 	['Series' , '3006']
-	]
+]
 
 musicDirs = [ ['Recent Artists', '3008'], ['All Artists', '3009'] ]
 
@@ -33,7 +33,7 @@ def MainMenu():
 		if value == 'music':
 			oc.add(DirectoryObject(key=Callback(MusicMenu), title=name))
 		else:
-		        oc.add(DirectoryObject(key=Callback(SectionMenu, id=value, name=name), title=name))
+			oc.add(DirectoryObject(key=Callback(SectionMenu, id=value, name=name), title=name))
 	oc.add(SearchDirectoryObject(identifier="com.plexapp.plugins.npr", title="Search", summary="Search NPR for...", prompt="Search for...",
 		thumb=R("search.png")))
 	return oc
@@ -45,7 +45,7 @@ def MusicMenu():
 	for name, value in musicDirs:
 		oc.add(DirectoryObject(key=Callback(SectionMenu, id=value, name=name), title=name))
 	return oc
-	
+
 ####################################################################################################
 @route('/music/npr/section')
 def SectionMenu(id, name):

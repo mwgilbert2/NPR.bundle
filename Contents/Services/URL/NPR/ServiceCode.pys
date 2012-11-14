@@ -1,21 +1,25 @@
 from ParseStories import ParseStories
 
 def NormalizeURL(url):
-    return url
+	return url
 
 def MetadataObjectForURL(url):
-    oc = ParseStories(url)
-    return oc.objects[0]
-    
+	oc = ParseStories(url)
+	return oc.objects[0]
+
 def MediaObjectsForURL(url):
-    return [
-        MediaObject(
-            parts = [PartObject(key=Callback(PlayTrack, url=url, ext='mp3'))],
-            audio_codec = AudioCodec.MP3
-        )
-    ]
-    
+	return [
+		MediaObject(
+			parts = [PartObject(key=Callback(PlayTrack, url=url, ext='mp3'))],
+			audio_codec = AudioCodec.MP3
+		)
+	]
+
 def PlayTrack(url):
-    data = XML.ElementFromURL(url)
-    mp3_url = data.xpath('//mp3')[0].text
-    return Redirect(mp3_url)
+	data = XML.ElementFromURL(url)
+	mp3_url = data.xpath('//mp3')[0].text
+
+	if '.m3u' in mp3_url:
+		mp3_url = HTTP.Request(mp3_url).content
+
+	return Redirect(mp3_url)
