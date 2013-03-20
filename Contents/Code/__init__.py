@@ -7,6 +7,7 @@ QUERY_URL = NPR_ROOT + '/query?id=%s&numResults=20&requiredAssets=audio&apiKey='
 SEARCH_URL = NPR_ROOT + '/query?startNum=0&sort=dateDesc&output=NPRML&numResults=20&apiKey=' + API_KEY
 
 dirs = [
+	['NPR Live Stream' , 'live'],
 	['Topics', '3002'], 
 	['Music Genres', '3018'], 
 	['Programs' , '3004'],
@@ -32,6 +33,8 @@ def MainMenu():
 	for name, value in dirs:
 		if value == 'music':
 			oc.add(DirectoryObject(key=Callback(MusicMenu), title=name))
+		elif value =='live':
+			oc.add(DirectoryObject(key=Callback(PlayLive), title=name))
 		else:
 			oc.add(DirectoryObject(key=Callback(SectionMenu, id=value, name=name), title=name))
 	oc.add(SearchDirectoryObject(identifier="com.plexapp.plugins.npr", title="Search", summary="Search NPR for...", prompt="Search for...",
@@ -65,4 +68,11 @@ def SectionMenu(id, name):
 			maxNumToReturn = maxNumToReturn - 1
 			if maxNumToReturn <= 0: 
 				break
+	return oc
+
+####################################################################################################
+@route('/music/npr/live')
+def PlayLive():
+	oc = ObjectContainer()
+	oc.add(TrackObject(url='http://npr.ic.llnwd.net/stream/npr_live24', title='NPR Live Stream', artist='NPR', album='24-Hour Program Stream', summary='NPR News and Shows'))
 	return oc
