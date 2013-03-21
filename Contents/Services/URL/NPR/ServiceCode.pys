@@ -4,7 +4,10 @@ def NormalizeURL(url):
 	return url
 
 def MetadataObjectForURL(url):
-	oc = ParseStories(url)
+	if 'live24' in url:
+		oc = ObjectContainer(TrackObject(url='http://npr.ic.llnwd.net/stream/npr_live24', title='NPR Live Stream', artist='NPR', album='24-Hour Program Stream', summary='NPR News and Shows'))
+	else:
+		oc = ParseStories(url)
 	return oc.objects[0]
 
 def MediaObjectsForURL(url):
@@ -16,6 +19,9 @@ def MediaObjectsForURL(url):
 	]
 
 def PlayTrack(url):
+	if 'live24' in url:
+		return Redirect(url)
+	
 	data = XML.ElementFromURL(url)
 	mp3_url = data.xpath('//mp3')[0].text
 
