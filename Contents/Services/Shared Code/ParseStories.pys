@@ -20,7 +20,7 @@ def ParseStories(url, name=None):
 		except: show = ''
 
 		try: thumb = item.xpath('./image/crop')[0].get('src')
-		except: thumb = R('icon-default.png')
+		except: thumb = ''
 
 		date = item.xpath('./storyDate')[0].text
 		date = Datetime.ParseDate(date).date()

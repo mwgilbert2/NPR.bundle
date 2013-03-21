@@ -23,11 +23,9 @@ musicDirs = [ ['Recent Artists', '3008'], ['All Artists', '3009'] ]
 
 def Start():
 	Plugin.AddViewGroup("Details", viewMode="InfoList", mediaType="items")
-	ObjectContainer.art = R('art-default.jpg')
-	DirectoryObject.thumb = R('icon-default.jpg')
 
 ####################################################################################################
-@handler('/music/npr', 'NPR', thumb='icon-default.jpg', art='art-default.jpg')
+@handler('/music/npr', 'NPR')
 def MainMenu():
 	oc = ObjectContainer()
 	for name, value in dirs:
@@ -59,7 +57,7 @@ def SectionMenu(id, name):
 		item_url = QUERY_URL % item_id
 		item_title = item.xpath('./title')[0].text
 		try:
-			item_summary = item.xpath('./additionalInfo')[0].text
+			item_summary = String.StripTags(item.xpath('./additionalInfo')[0].text)
 		except:
 			item_summary = ''
 		oc.add(DirectoryObject(key=Callback(ParseStories, url=item_url, name=item_title),
