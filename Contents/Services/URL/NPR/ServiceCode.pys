@@ -19,7 +19,7 @@ def MediaObjectsForURL(url):
 	]
 
 def PlayTrack(url):
-	if 'live24' in url:
+	if 'live01' in url:
 		return Redirect(url)
 	
 	data = XML.ElementFromURL(url)
