@@ -5,7 +5,7 @@ def NormalizeURL(url):
 
 def MetadataObjectForURL(url):
 	if 'live24' in url:
-		oc = ObjectContainer(TrackObject(url='http://npr.ic.llnwd.net/stream/npr_live24', title='NPR Live Stream', artist='NPR', album='24-Hour Program Stream', summary='NPR News and Shows'))
+		oc = ObjectContainer(TrackObject(url='http://npr.ic.llnwd.net/stream/npr_live01_mp3', title='NPR Live Stream', artist='NPR', album='24-Hour Program Stream', summary='NPR News and Shows'))
 	else:
 		oc = ParseStories(url)
 	return oc.objects[0]
