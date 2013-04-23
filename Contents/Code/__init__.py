@@ -72,5 +72,5 @@ def SectionMenu(id, name):
 @route('/music/npr/live')
 def PlayLive():
 	oc = ObjectContainer()
-	oc.add(TrackObject(url='http://npr.ic.llnwd.net/stream/npr_live24', title='NPR Live Stream', artist='NPR', album='24-Hour Program Stream', summary='NPR News and Shows'))
+	oc.add(TrackObject(url='http://npr.ic.llnwd.net/stream/npr_live01_mp3', title='NPR Live Stream', artist='NPR', album='24-Hour Program Stream', summary='NPR News and Shows'))
 	return oc
